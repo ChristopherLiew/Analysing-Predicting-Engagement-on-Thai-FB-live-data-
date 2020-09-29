@@ -36,26 +36,34 @@ fb_live_df_pre = fb_live_df_red[fb_live_df_red$status_published < ymd("2016/02/2
 fb_live_df_post = fb_live_df_red[fb_live_df_red$status_published >= ymd("2016/02/24"), ]
 
 # 3. Numerical 
+
+# Test for normality using Anderson Darling Test (Shapiro Wilke only handles num obs <= 5000)
+ad_normality_test <- function(df, signif_lvl=0.05, columns=c('num_reactions', 'num_comments', 'num_shares', 'num_likes')) {
+  results = data.frame(stringsAsFactors = FALSE)
+  n_obs = length(df)
+  for (i in seq_along(columns)) {
+    feature_data = df %>% select(columns[i])
+    ad_test_data = ad.test(as.numeric(unlist(feature_data)))
+    p_val = ad_test_data$p.value 
+    is_normal = p_val >= signif_lvl # Null Hypo = Normally Distributed; Small P-Val = Not Normally Distributed
+    feature_results = c(columns[i], p_val, is_normal)
+    results = rbind(results, feature_results, stringsAsFactors = FALSE)
+  }
+  colnames(results) = c("Feature", "P_Value", "Is_Normal")
+  return(results)
+}
+
 # PRE-EMOTICON
 # Pairplot 
 ggpairs(fb_live_df_pre[,c(4:7)])
-# num_reactions
-# num_comments
-# num_shares
-# num_likes
+# AD Normality Test
+ad_normality_test(fb_live_df_pre)
 
 # POST-EMOTICON
-# Pairplot - Post-Emoticon
+# Pairplot 
 ggpairs(fb_live_df_post[,c(4:12)])
-# num_reactions
-# num_comments
-# num_shares
-# num_likes
-# num_loves
-# num_wows
-# num_hahas
-# num_sad
-# num_angrys
+# AD Normality Test
+ad_normality_test(fb_live_df_post, columns=c('num_reactions', 'num_comments', 'num_shares', 'num_likes', 'num_loves', 'num_wows', 'num_hahas', 'num_sads', 'num_angrys'))
 
 ### Preprocessing & Feature Engineering ###
 # TBD: Create Prep Pipeline
