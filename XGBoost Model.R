@@ -1,6 +1,7 @@
 # Load Libraries
 library(tidyverse)
 library(xgboost)
+library(paradox)
 library(mlr3)
 library(mlr3tuning)
 library(mlr3learners)
