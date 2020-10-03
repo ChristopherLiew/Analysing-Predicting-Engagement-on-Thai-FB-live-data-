@@ -35,8 +35,15 @@ describe(fb_live_df_red$status_published)
 fb_live_df_pre = fb_live_df_red[fb_live_df_red$status_published < ymd("2016/02/24"), ]
 fb_live_df_post = fb_live_df_red[fb_live_df_red$status_published >= ymd("2016/02/24"), ]
 
-# 3. Numerical 
+# Looking at Status Type once again PRE & POST EMOTICON
+freq(fb_live_df_pre$status_type)
+describe(fb_live_df_pre$status_type)
 
+freq(fb_live_df_post$status_type)
+describe(fb_live_df_post$status_type)
+# Growth in videos as a medium, thus support for videos have increased.
+
+# 3. Numerical 
 # Test for normality using Anderson Darling Test (Shapiro Wilke only handles num obs <= 5000)
 ad_normality_test <- function(df, signif_lvl=0.05, columns=c('num_reactions', 'num_comments', 'num_shares', 'num_likes')) {
   results = data.frame(stringsAsFactors = FALSE)
@@ -50,7 +57,7 @@ ad_normality_test <- function(df, signif_lvl=0.05, columns=c('num_reactions', 'n
     results = rbind(results, feature_results, stringsAsFactors = FALSE)
   }
   colnames(results) = c("Feature", "P_Value", "Is_Normal")
-  return(results)
+  return(as_tibble(results))
 }
 
 # PRE-EMOTICON
@@ -94,13 +101,21 @@ min_max_scaler = function(x) {
 
 # PRE-EMOTICON + Min Max Norm
 fb_live_df_main_pre = fb_live_df_main[fb_live_df_main$status_published < ymd("2016/02/24"),]
-fb_live_df_main_pre[, c(3:10,13:14)] = sapply(fb_live_df_main_pre[, c(3:10,13:14)], min_max_scaler)
+fb_live_df_main_pre[, c(3,5:10,13:14)] = sapply(fb_live_df_main_pre[, c(3,5:10,13:14)], min_max_scaler)
 # Drop Emoticon Reaction Columns
 fb_live_df_main_pre = fb_live_df_main_pre %>% subset(select = -c(num_loves, num_wows, num_hahas, num_sads, num_angrys, neg_emo_int))
+# Unnorm Version
+fb_live_df_main_pre_unnorm = fb_live_df_main[fb_live_df_main$status_published < ymd("2016/02/24"),]
+fb_live_df_main_pre_unnorm = fb_live_df_main_pre_unnorm %>% subset(select = -c(num_loves, num_wows, num_hahas, num_sads, num_angrys, neg_emo_int))
+
 
 # POST-EMOTICON
 fb_live_df_main_post = fb_live_df_main[fb_live_df_main$status_published >= ymd("2016/02/24"),]
-fb_live_df_main_post[, c(3:10,13:14)] = sapply(fb_live_df_main_post[, c(3:10,13:14)], min_max_scaler)
+fb_live_df_main_post[, c(3,5:10,13:14)] = sapply(fb_live_df_main_post[, c(3,5:10,13:14)], min_max_scaler)
+# Unnorm Version
+fb_live_df_main_post_unnorm = fb_live_df_main[fb_live_df_main$status_published >= ymd("2016/02/24"),]
+fb_live_df_main_post_unnorm = fb_live_df_main_post_unnorm %>% subset(select = -c(num_loves, num_wows, num_hahas, num_sads, num_angrys, neg_emo_int))
+
 
 # One-Hot Encoding of Dummy Variables
 # PRE-EMOTICON
@@ -171,3 +186,7 @@ summary(pc_fb_live_post)
 ### EXPORT DATA ###
 write.csv(fb_live_df_main_pre, file="live_pre_emoticon.csv", row.names = FALSE)
 write.csv(fb_live_df_main_post, file="live_post_emoticon.csv", row.names = FALSE)
+# Unnorm Data
+write.csv(fb_live_df_main_pre_unnorm, file="live_pre_emoticon_unnorm.csv", row.names = FALSE)
+write.csv(fb_live_df_main_post_unnorm, file="live_post_emoticon_unnorm.csv", row.names = FALSE)
+
