@@ -114,7 +114,6 @@ fb_live_df_main_post = fb_live_df_main[fb_live_df_main$status_published >= ymd("
 fb_live_df_main_post[, c(3,5:10,13:14)] = sapply(fb_live_df_main_post[, c(3,5:10,13:14)], min_max_scaler)
 # Unnorm Version
 fb_live_df_main_post_unnorm = fb_live_df_main[fb_live_df_main$status_published >= ymd("2016/02/24"),]
-fb_live_df_main_post_unnorm = fb_live_df_main_post_unnorm %>% subset(select = -c(num_loves, num_wows, num_hahas, num_sads, num_angrys, neg_emo_int))
 
 
 # One-Hot Encoding of Dummy Variables
