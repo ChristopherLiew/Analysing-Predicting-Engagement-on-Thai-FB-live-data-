@@ -148,6 +148,7 @@ glimpse(fb_live_df_main_post)
 baseline_lm_pre = lm(num_shares ~ . -num_shares -status_published -status_typelink -mon -jan, data=fb_live_df_main_pre)
 summary(baseline_lm_pre)
 vif(baseline_lm_pre) # Cutoff ~ VIF > 6
+# Potential features to remove: num_comments = 7.757; pos_emo_int = 8.515 (Int term so naturally high VIF)
 
 # 2. Pearson's Corr Heatmap
 cormat_pre = cor(fb_live_df_main_pre[, c(2:28)])
@@ -158,6 +159,7 @@ corrplot(cormat_pre, order = "original", tl.col='black', tl.cex=.75)
 baseline_lm_post = lm(num_shares ~ . -num_shares -status_published -status_typelink -mon -jan, data=fb_live_df_main_post)
 summary(baseline_lm_post)
 vif(baseline_lm_post) # Cutoff ~ VIF > 6
+# Potential features to remove: pos_emo_int = 6.093 (Int term so naturally high VIF)
 
 # 2. Pearson's Corr Heatmap
 cormat_pre = cor(fb_live_df_main_post[, c(2:34)])
