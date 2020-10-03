@@ -1,6 +1,8 @@
 # Load Libraries
 library(dbscan)
 library(tidyverse)
+library(anomalize)
+library(dummies)
 set.seed(42)
 
 # Load Live Data
@@ -18,7 +20,6 @@ live_post_unnorm = read_csv(file.choose())
 # Min-max scale num_shares to ensure all features are normalised
 live_pre$num_shares = min_max_scaler(live_pre$num_shares)
 live_post$num_shares = min_max_scaler(live_post$num_shares)
-
 
 ## 1.DBScan ##
 # PRE-EMOTICON
@@ -91,24 +92,27 @@ ggplot(data = noise_pts_post, aes(x=num_hahas, y=num_shares, color=num_hahas)) +
 corrplot(cor(noise_pts_post[, c(3:10, 13:14)]))
 
 ## 2. Anomalise - Time Series ##
-library(anomalize)
-library(dummies)
 # Prepare time series PRE-EMOTICON dataset
 live_pre_unnorm_ts = subset(cbind(live_pre_unnorm, dummy(live_pre_unnorm$status_type)), select = -c(status_type, dow, moy))
 # Decompose and Find Anomalies
 tbl_df(arrange(live_pre_unnorm_ts, status_published)) %>%
   time_decompose(num_shares) %>%
-  anomalize(remainder) %>%
+  anomalize(remainder, alpha=0.015, max_anoms = 0.05) %>%
   time_recompose() %>%
-  plot_anomalies(time_recomposed = TRUE)
+  plot_anomalies(time_recomposed = TRUE) +
+  ggtitle("Top 5% of Anomalies: Pre-Emoticons")
 
 # Prepare time series POST-EMOTICON dataset
 live_post_unnorm_ts = subset(cbind(live_post_unnorm, dummy(live_post_unnorm$status_type)), select = -c(status_type, dow, moy))
 # Decompose and Find Anomalies
 tbl_df(arrange(live_post_unnorm_ts, status_published)) %>%
   time_decompose(num_shares) %>%
-  anomalize(remainder) %>%
+  anomalize(remainder, alpha=0.015, max_anoms = 0.05) %>% 
+  # Alpha is the exponential smoothing parameter, when we decrease it it decreases the band by which a point would need to exceed to be considered an outlier
+  # s(t) = a*x(t) + (1-a)*x(t-1)
+  # Increases weights on past instances
   time_recompose() %>%
-  plot_anomalies(time_recomposed = TRUE)
+  plot_anomalies(time_recomposed = TRUE) +
+  ggtitle("Top 5% of Anomalies: Post-Emoticons")
 
 
