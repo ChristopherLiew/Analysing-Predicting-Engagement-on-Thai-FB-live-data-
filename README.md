@@ -11,5 +11,5 @@
 <li> Bagging Model: Random Forest </li>
 <li> Boosting Model: XGBoost </li>
 <li> Anomaly Detection I: DBScan </li>
-<li> Anomaly Detection II: Gaussian Mixture Models </li>
+<li> Anomaly Detection II: Detecting anomalies across Times Series </li>
 </ul>
